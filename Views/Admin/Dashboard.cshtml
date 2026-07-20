@@ -1,0 +1,524 @@
+@model List<LibrarySystem.Models.Transaction>
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var todayTxns = ViewBag.TodayTxns as List<LibrarySystem.Models.Transaction> ?? new List<LibrarySystem.Models.Transaction>();
+    var defaulters = ViewBag.Defaulters as List<LibrarySystem.Models.Transaction> ?? new List<LibrarySystem.Models.Transaction>();
+}
+
+@section Styles {
+    <style>
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+            .page-header h4 {
+                color: #fff;
+                font-weight: 800;
+                font-size: 1.4rem;
+                margin: 0;
+                letter-spacing: -0.3px;
+            }
+
+            .page-header p {
+                color: #64748b;
+                font-size: 0.85rem;
+                margin: 4px 0 0;
+                font-weight: 500;
+            }
+
+        .stat-card {
+            background: rgba(11, 11, 30, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            height: 100%;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+            .stat-card:hover {
+                border-color: #3b82f6;
+                transform: translateY(-2px);
+                box-shadow: 0 12px 35px rgba(37, 99, 235, 0.1);
+            }
+
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1.1;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .section-card {
+            background: rgba(11, 11, 30, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            margin-top: 1rem;
+            width: 100%;
+        }
+
+        .section-header {
+            padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .section-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .section-title i {
+                color: #3b82f6;
+                font-size: 18px;
+            }
+
+        /* Standardized Cyber Dark Tables */
+        .scanexus-table-override {
+            margin: 0 !important;
+            color: #cbd5e1 !important;
+            width: 100% !important;
+            background: transparent !important;
+        }
+
+            .scanexus-table-override thead th {
+                background: rgba(5, 5, 15, 0.8) !important;
+                color: #94a3b8 !important;
+                font-size: 0.72rem;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+                padding: 1rem 1.4rem !important;
+                font-weight: 600;
+                text-align: left !important;
+            }
+
+            .scanexus-table-override tbody td {
+                border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
+                padding: 1.1rem 1.4rem !important;
+                vertical-align: middle;
+                font-size: 0.92rem;
+                background: transparent !important;
+                color: #cbd5e1 !important;
+                text-align: left !important;
+            }
+
+            .scanexus-table-override tbody tr:hover td {
+                background: rgba(255, 255, 255, 0.02) !important;
+                color: #fff !important;
+            }
+
+        .txn-code-badge {
+            color: #60a5fa !important;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.82rem;
+            font-weight: 500;
+            background: rgba(37, 99, 235, 0.08) !important;
+            border: 1px solid rgba(59, 130, 246, 0.15) !important;
+            padding: 5px 12px !important;
+            border-radius: 8px;
+            white-space: nowrap;
+            display: inline-block;
+        }
+
+        .student-name {
+            color: #f1f5f9;
+            font-weight: 600;
+            font-size: 0.92rem;
+        }
+
+        .student-id {
+            color: #64748b;
+            font-size: 0.78rem;
+            margin-top: 3px;
+            font-weight: 500;
+        }
+
+        .book-title {
+            color: #cbd5e1;
+            font-weight: 500;
+        }
+
+        .date-text {
+            color: #94a3b8;
+            font-size: 0.88rem;
+            white-space: nowrap;
+        }
+
+        .badge-active {
+            background: rgba(34, 197, 94, 0.1);
+            color: #86efac;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-returned {
+            background: rgba(148, 163, 184, 0.08);
+            color: #94a3b8;
+            border: 1px solid rgba(148, 163, 184, 0.15);
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-overdue {
+            background: rgba(239, 68, 68, 0.1);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .fine-text {
+            color: #fca5a5;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        /* Inventory Widget Styles */
+        .inventory-bar {
+            height: 10px;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.05);
+            overflow: hidden;
+            display: flex;
+            margin: 1rem 0;
+        }
+
+        .inventory-fill-avail {
+            background: linear-gradient(90deg, #22c55e, #4ade80);
+            height: 100%;
+        }
+
+        .inventory-fill-issued {
+            background: linear-gradient(90deg, #f59e0b, #f97316);
+            height: 100%;
+        }
+
+        .inventory-legend {
+            display: flex;
+            gap: 1.5rem;
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+
+            .inventory-legend .dot {
+                width: 10px;
+                height: 10px;
+                border-radius: 50%;
+                display: inline-block;
+                margin-right: 6px;
+            }
+
+        .empty-row {
+            text-align: center;
+            padding: 2.5rem 1rem;
+            color: #475569;
+        }
+
+            .empty-row i {
+                font-size: 2rem;
+                display: block;
+                margin-bottom: 0.5rem;
+            }
+    </style>
+}
+
+<div class="page-header">
+    <h4><i class="bi bi-grid-1x2-fill me-2" style="color:#3b82f6;"></i>System Overview</h4>
+    <p>Real-time analytics and library activity stream</p>
+</div>
+
+<!-- KPI Cards Widgets Row -->
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(59, 130, 246, 0.15);">
+                <i class="bi bi-collection" style="color:#60a5fa;"></i>
+            </div>
+            <div class="stat-value" style="color:#60a5fa;">@ViewBag.TotalTransactions</div>
+            <div class="stat-label">Total Issued Books</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(239, 68, 68, 0.15);">
+                <i class="bi bi-exclamation-triangle" style="color:#fca5a5;"></i>
+            </div>
+            <div class="stat-value" style="color:#fca5a5;">@ViewBag.OverdueIssues</div>
+            <div class="stat-label">Overdue Books</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(129, 140, 248, 0.15);">
+                <i class="bi bi-people" style="color:#a5b4fc;"></i>
+            </div>
+            <div class="stat-value" style="color:#a5b4fc;">@ViewBag.TotalStudents</div>
+            <div class="stat-label">Total Students</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(34, 197, 94, 0.15);">
+                <i class="bi bi-book" style="color:#86efac;"></i>
+            </div>
+            <div class="stat-value" style="color:#86efac;">@ViewBag.ActiveIssues</div>
+            <div class="stat-label">Currently Issued</div>
+        </div>
+    </div>
+</div>
+
+<!-- Daily Tracker and Active Inventory Row -->
+<div class="row g-4 mb-1">
+    <div class="col-lg-8">
+        <div class="section-card mt-0">
+            <div class="section-header">
+                <div class="section-title">
+                    <i class="bi bi-calendar-check"></i> Daily Transactions Tracker
+                </div>
+                <span style="color:#64748b; font-size:0.78rem;">@DateTime.Today.ToString("dd MMM yyyy")</span>
+            </div>
+            @if (!todayTxns.Any())
+            {
+                <div class="empty-row">
+                    <i class="bi bi-calendar-x mb-2 d-block text-muted"></i> No transactions recorded today.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table scanexus-table-override align-middle">
+                        <thead>
+                            <tr>
+                                <th style="width: 25%;">Transaction ID</th>
+                                <th style="width: 25%;">Student</th>
+                                <th style="width: 25%;">Book</th>
+                                <th style="width: 13%;">Action</th>
+                                <th style="width: 12%;">Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var t in todayTxns)
+                            {
+                                bool isReturnToday = t.ReturnDate.HasValue && t.ReturnDate.Value.Date == DateTime.Today;
+                                <tr>
+                                    <td><span class="txn-code-badge">@t.TxnCode</span></td>
+                                    <td>
+                                        <div class="student-name">@t.Student?.FullName</div>
+                                        <div class="student-id">@t.Student?.UniversityID</div>
+                                    </td>
+                                    <td><span class="book-title">@t.Book?.Title</span></td>
+                                    <td>
+                                        @if (isReturnToday)
+                                        {
+                                            <span class="badge-returned">Returned</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge-active">Issued</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <span class="date-text">
+                                            @(isReturnToday? t.ReturnDate!.Value.ToString("hh:mm tt") : t.IssueDate.ToString("hh:mm tt"))
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="section-card mt-0">
+            <div class="section-header">
+                <div class="section-title">
+                    <i class="bi bi-pie-chart-fill"></i> Active Inventory
+                </div>
+            </div>
+            <div class="p-4">
+                @{
+                    int total = ViewBag.TotalCopies ?? 0;
+                    int available = ViewBag.AvailableCopies ?? 0;
+                    int issued = ViewBag.IssuedCopies ?? 0;
+                    double availPct = total > 0 ? (double)available / total * 100 : 0;
+                    double issuedPct = total > 0 ? (double)issued / total * 100 : 0;
+                }
+                <div class="d-flex justify-content-between mb-1">
+                    <span style="color:#fff; font-weight:700; font-size:1.6rem;">@total</span>
+                    <span style="color:#64748b; font-size:0.8rem; align-self:end;">total copies</span>
+                </div>
+                <div class="inventory-bar">
+                    <div class="inventory-fill-avail" style="width:@(availPct)%;"></div>
+                    <div class="inventory-fill-issued" style="width:@(issuedPct)%;"></div>
+                </div>
+                <div class="inventory-legend">
+                    <span><span class="dot" style="background:#4ade80;"></span>Available: @available</span>
+                </div>
+                <div class="inventory-legend mt-2">
+                    <span><span class="dot" style="background:#f97316;"></span>Issued: @issued</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Defaulters List Container Card -->
+<div class="section-card">
+    <div class="section-header">
+        <div class="section-title"><i class="bi bi-person-x-fill"></i> Defaulters List</div>
+    </div>
+    @if (!defaulters.Any())
+    {
+        <div class="empty-row">
+            <i class="bi bi-emoji-smile mb-2 d-block text-muted"></i> No defaulters — everything is on track.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table scanexus-table-override align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 22%;">Transaction ID</th>
+                        <th style="width: 24%;">Student</th>
+                        <th style="width: 24%;">Book</th>
+                        <th style="width: 15%;">Due Date</th>
+                        <th style="width: 15%;">Fine</th>
+                        <th style="width: 10%;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var t in defaulters)
+                    {
+                        <tr>
+                            <td><span class="txn-code-badge">@t.TxnCode</span></td>
+                            <td>
+                                <div class="student-name">@t.Student?.FullName</div>
+                                <div class="student-id">@t.Student?.UniversityID</div>
+                            </td>
+                            <td><span class="book-title">@t.Book?.Title</span></td>
+                            <td><span style="color:#fca5a5; font-weight:600; white-space:nowrap;">@t.DueDate.ToString("dd MMM yyyy")</span></td>
+                            <td><span class="fine-text">Rs. @t.CalculatedFine</span></td>
+                            <td><span class="badge-overdue">Overdue</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<!-- FIXED: Recent Transactions Tracker Container Node -->
+<div class="section-card">
+    <div class="section-header">
+        <div class="section-title"><i class="bi bi-clock-history"></i> Recent Transactions Tracker</div>
+    </div>
+    @if (Model == null || !Model.Any())
+    {
+        <div class="empty-row">
+            <i class="bi bi-folder-x mb-2 d-block text-muted"></i> No operational history logs indexed.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table scanexus-table-override align-middle">
+                <thead>
+                    <tr>
+                        <th style="width: 20%;">Transaction ID</th>
+                        <th style="width: 22%;">Student Details</th>
+                        <th style="width: 24%;">Book Title</th>
+                        <th style="width: 12%;">Issue Date</th>
+                        <th style="width: 12%;">Due Date</th>
+                        <th style="width: 10%;">Current Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var t in Model)
+                    {
+                        <tr>
+                            <td><span class="txn-code-badge">@t.TxnCode</span></td>
+                            <td>
+                                <div class="student-name">@t.Student?.FullName</div>
+                                <div class="student-id">@t.Student?.UniversityID</div>
+                            </td>
+                            <td><span class="book-title">@t.Book?.Title</span></td>
+                            <td><span class="date-text">@t.IssueDate.ToString("dd MMM yyyy")</span></td>
+                            <td>
+                                @if (t.DueDate < DateTime.Now && t.Status == "Active")
+                                {
+                                    <span style="color: #fca5a5; font-weight: 600; white-space:nowrap;">@t.DueDate.ToString("dd MMM yyyy")</span>
+                                }
+                                else
+                                {
+                                    <span style="color: #facc15; font-weight: 500; white-space:nowrap;">@t.DueDate.ToString("dd MMM yyyy")</span>
+                                }
+                            </td>
+                            <td>
+                                @if (t.Status == "Active")
+                                {
+                                    <span class="badge-active">Active</span>
+                                }
+                                else if (t.Status == "Returned")
+                                {
+                                    <span class="badge-returned">Returned</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-overdue">Overdue</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

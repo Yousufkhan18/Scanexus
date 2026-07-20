@@ -1,0 +1,218 @@
+@{
+    ViewData["Title"] = "Borrow Book";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var bookTitle = ViewBag.BookTitle as string ?? "Unknown";
+    var bookAuthor = ViewBag.BookAuthor as string ?? "";
+    var qrCode = ViewBag.QRCode as string ?? "";
+    var available = (bool)(ViewBag.Available ?? false);
+    var uid = Context.Session.GetString("UniversityID") ?? "";
+    var name = Context.Session.GetString("StudentName") ?? "";
+}
+
+@section Styles {
+    <style>
+        .borrow-wrap {
+            display: flex;
+            justify-content: center;
+            margin-top: 3rem;
+        }
+
+        /* Premium Glassmorphism Card Wrapper */
+        .borrow-card {
+            background: rgba(11, 11, 30, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            border-radius: 20px;
+            padding: 2.2rem;
+            width: 100%;
+            max-width: 430px;
+        }
+
+        .borrow-icon {
+            font-size: 2.8rem;
+            display: block;
+            text-align: center;
+            margin-bottom: 0.8rem;
+            text-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .borrow-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #fff;
+            text-align: center;
+            margin-bottom: 4px;
+            letter-spacing: -0.3px;
+        }
+
+        .borrow-author {
+            font-size: 0.85rem;
+            color: #60a5fa;
+            text-align: center;
+            margin-bottom: 1.6rem;
+            font-weight: 500;
+        }
+
+        /* Translucent Matrix Info Box */
+        .info-box {
+            background: rgba(5, 5, 15, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1rem 1.2rem;
+            margin-bottom: 1.6rem;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.88rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+            .info-row:last-child {
+                border: none;
+            }
+
+            .info-row .lbl {
+                color: #64748b;
+                font-weight: 500;
+            }
+
+            .info-row .val {
+                color: #f1f5f9;
+                font-weight: 600;
+            }
+
+                .info-row .val.id {
+                    color: #60a5fa;
+                    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+                    font-size: 0.85rem;
+                }
+
+        /* Fluid Premium Buttons */
+        .btn-confirm {
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+            border: none;
+            color: #fff;
+            font-weight: 600;
+            padding: 0.8rem;
+            border-radius: 12px;
+            width: 100%;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 0.8rem;
+        }
+
+            .btn-confirm:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+                opacity: 0.95;
+            }
+
+        .btn-cancel {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #94a3b8;
+            font-size: 0.9rem;
+            font-weight: 500;
+            padding: 0.75rem;
+            border-radius: 12px;
+            width: 100%;
+            text-align: center;
+            text-decoration: none;
+            display: block;
+            transition: all 0.2s;
+        }
+
+            .btn-cancel:hover {
+                background: rgba(255, 255, 255, 0.05);
+                border-color: rgba(255, 255, 255, 0.15);
+                color: #fff;
+            }
+
+        /* Conditional States UI System */
+        .state-icon {
+            font-size: 3.2rem;
+            display: block;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .state-title {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #fff;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.3px;
+        }
+
+        .state-sub {
+            font-size: 0.9rem;
+            color: #64748b;
+            text-align: center;
+            margin-bottom: 1.8rem;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+    </style>
+}
+
+<div class="borrow-wrap">
+    <div class="borrow-card">
+        @if (!available)
+        {
+            <!-- Dynamic State View: Book Out of Stock -->
+            <i class="bi bi-x-circle-fill state-icon" style="color:#ef4444; text-shadow: 0 4px 15px rgba(239,68,68,0.25);"></i>
+            <div class="state-title">Book Unavailable</div>
+            <div class="state-sub">All copies of <strong style="color:#f1f5f9; font-weight: 600;">@bookTitle</strong> are currently checked out.</div>
+            <a href="/Books/Index" class="btn-cancel">Back to Catalog</a>
+        }
+        else if (string.IsNullOrEmpty(uid))
+        {
+            <!-- Dynamic State View: Intercept Guard Identity Check -->
+            <i class="bi bi-person-lock state-icon" style="color:#facc15; text-shadow: 0 4px 15px rgba(250,204,21,0.25);"></i>
+            <div class="state-title">Login Required</div>
+            <div class="state-sub">Please log in to your account to process this request.</div>
+            <a href="/Student/Login" class="btn-confirm" style="text-decoration:none;">
+                <i class="bi bi-box-arrow-in-right"></i> Sign In to Account
+            </a>
+        }
+        else
+        {
+            <!-- Dynamic State View: Checkout Confirmation Form -->
+            <i class="bi bi-book-half borrow-icon" style="color:#3b82f6;"></i>
+            <div class="borrow-title">@bookTitle</div>
+            <div class="borrow-author">@bookAuthor</div>
+
+            <div class="info-box">
+                <div class="info-row">
+                    <span class="lbl">Borrower Profile</span>
+                    <span class="val">@name</span>
+                </div>
+                <div class="info-row">
+                    <span class="lbl">University ID</span>
+                    <span class="val id">@uid</span>
+                </div>
+            </div>
+
+            <form asp-controller="Books" asp-action="Issue" method="post" style="margin:0;">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="qrCode" value="@qrCode" />
+                <button type="submit" class="btn-confirm">
+                    <i class="bi bi-check-circle-fill"></i> Confirm Checkout
+                </button>
+            </form>
+            <a href="/Books/Index" class="btn-cancel">Cancel Checkout</a>
+        }
+    </div>
+</div>

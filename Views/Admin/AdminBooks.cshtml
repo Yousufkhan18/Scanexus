@@ -1,0 +1,386 @@
+﻿@model List<LibrarySystem.Models.Book>
+@{
+    ViewData["Title"] = "Books Management";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+@section Styles {
+    <style>
+        /* 🌌 CORE LAYOUT & ACCENT BRANDING */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+            .page-header h4 {
+                color: #ffffff;
+                font-weight: 800;
+                margin: 0;
+                font-size: 1.5rem;
+                letter-spacing: -0.5px;
+            }
+
+            .page-header p {
+                color: #94a3b8;
+                font-size: 0.9rem;
+                margin: 4px 0 0;
+                font-weight: 500;
+            }
+
+        /* 🟦 NEON BLUE BRAND BUTTON */
+        .btn-add-book {
+            background: linear-gradient(135deg, #1e40af, #2563eb);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.25);
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            color: #ffffff;
+            font-size: 0.88rem;
+            font-weight: 600;
+            padding: 0.7rem 1.5rem;
+            border-radius: 10px;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            transition: all 0.25s ease;
+        }
+
+            .btn-add-book:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+                background: #2563eb;
+                color: #ffffff;
+            }
+
+        .analytics-summary-row {
+            margin-bottom: 2.5rem;
+        }
+
+        /* 🔲 BLACK-SILVER MINIMAL CARDS */
+        .analytics-card {
+            background: #090d16;
+            border: 1px solid rgba(59, 130, 246, 0.15);
+            border-radius: 14px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+            .analytics-card::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 4px;
+                height: 100%;
+                background: #2563eb; /* Blue Accent Sidebar Edge */
+                border-top-left-radius: 14px;
+                border-bottom-left-radius: 14px;
+            }
+
+            .analytics-card h6 {
+                color: #94a3b8;
+                font-size: 0.75rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                margin-bottom: 8px;
+            }
+
+            .analytics-card h3 {
+                color: #ffffff;
+                font-weight: 800;
+                font-size: 1.8rem;
+                margin: 0;
+                font-family: ui-monospace, SFMono-Regular, SF Pro Mono, Consolas, monospace;
+            }
+
+        /* 💻 PURE ENTERPRISE DARK TABLE WORKSPACE */
+        .data-table-container {
+            background: #090d16 !important;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        .table {
+            margin: 0;
+            color: #cbd5e1 !important;
+            background-color: #090d16 !important;
+        }
+
+            .table thead th {
+                background: #05070f !important;
+                color: #ffffff !important;
+                font-size: 0.75rem;
+                text-transform: uppercase;
+                font-weight: 700;
+                letter-spacing: 1px;
+                padding: 1.2rem 1.5rem;
+                border-bottom: 1px solid rgba(59, 130, 246, 0.2) !important;
+            }
+
+            .table tbody tr {
+                background-color: #090d16 !important;
+                transition: background-color 0.2s ease;
+            }
+
+            .table tbody td {
+                border-bottom: 1px solid rgba(255, 255, 255, 0.02) !important;
+                padding: 1.2rem 1.5rem;
+                vertical-align: middle;
+                color: #cbd5e1 !important;
+                background-color: transparent !important;
+            }
+
+            .table tbody tr:hover td {
+                background: rgba(37, 99, 235, 0.03) !important; /* Subtle blue tint on hover */
+                color: #ffffff !important;
+            }
+
+        .book-title-cell {
+            color: #ffffff !important;
+            font-weight: 600;
+            font-size: 0.98rem;
+        }
+
+        /* 🔵 NEON BLUE TOKEN LABELS */
+        .code-spec {
+            color: #3b82f6;
+            background: rgba(37, 99, 235, 0.07);
+            border: 1px solid rgba(37, 99, 235, 0.15);
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .stock-indicator {
+            font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .btn-remove-destructive {
+            background: rgba(239, 68, 68, 0.02);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+            .btn-remove-destructive:hover {
+                background: #ef4444;
+                border-color: #ef4444;
+                color: #ffffff;
+            }
+
+        /* 🟢 QUICK ACTION STOCK STATE STYLE */
+        .btn-add-stock-quick {
+            background: rgba(16, 185, 129, 0.02);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: #a7f3d0;
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+            .btn-add-stock-quick:hover {
+                background: #10b981;
+                border-color: #10b981;
+                color: #ffffff;
+            }
+
+        .alert-s {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: #a7f3d0;
+            border-radius: 12px;
+            padding: 0.85rem 1.2rem;
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+    </style>
+}
+
+<div class="page-header">
+    <div>
+        <h4><i class="bi bi-collection-fill me-2" style="color:#3b82f6;"></i>Books Management</h4>
+        <p>@Model.Count titles indexed across global catalog cluster</p>
+    </div>
+    <a href="/Admin/AddBook" class="btn-add-book">
+        <i class="bi bi-plus-lg"></i> Add New Book
+    </a>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert-s"><i class="bi bi-check-circle-fill me-2"></i>@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert-e"><i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["Error"]</div>
+}
+
+<div class="row analytics-summary-row g-4">
+    <div class="col-md-4">
+        <div class="analytics-card">
+            <h6>Total Stock Registry</h6>
+            <h3>@Model.Sum(b => b.TotalCopies)</h3>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="analytics-card" style="border-color: rgba(245, 158, 11, 0.2);">
+            <h6>Currently Circulating</h6>
+            <h3 style="color: #f59e0b !important;">@Model.Sum(b => b.TotalCopies - b.AvailableCopies)</h3>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="analytics-card" style="border-color: rgba(16, 185, 129, 0.2);">
+            <h6>Net Available Base</h6>
+            <h3 style="color: #10b981 !important;">@Model.Sum(b => b.AvailableCopies)</h3>
+        </div>
+    </div>
+</div>
+
+<div class="data-table-container">
+    <div class="table-responsive">
+        <table class="table align-middle">
+            <thead>
+                <tr>
+                    <th>Book Title</th>
+                    <th>Author</th>
+                    <th>ISBN Registry</th>
+                    <th>QR Code</th>
+                    <th>Stock Allocation</th>
+                    <th>Operational Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var b in Model)
+                {
+                    <tr>
+                        <td><span class="book-title-cell">@b.Title</span></td>
+                        <td><span style="color: #cbd5e1; font-weight: 500;">@b.Author</span></td>
+                        <td><span class="code-spec">@b.ISBN</span></td>
+                        <td><span class="code-spec">@b.QRCode</span></td>
+                        <td>
+                            <div class="stock-indicator">
+                                <span style="color: #3b82f6;">@b.AvailableCopies</span>
+                                <span style="color: #475569; font-weight: 500;"> / @b.TotalCopies</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <!-- 🟢 QUICK STOCK INCREMENT BUTTON -->
+                                <button type="button" class="btn-add-stock-quick"
+                                        onclick="openAddCopiesModal('@b.BookID', '@b.Title.Replace("'", "\\'")', '@b.AvailableCopies', '@b.TotalCopies')">
+                                    <i class="bi bi-plus-circle-fill me-1"></i> Add Copies
+                                </button>
+
+                                <form asp-action="DeleteBook" method="post" style="display:inline; margin:0;">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@b.BookID" />
+                                    <button class="btn-remove-destructive" type="submit" onclick="return confirm('Wipe @b.Title records?')">
+                                        <i class="bi bi-trash-fill me-1"></i> Remove
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 📦 REFINED STYLISH STOCK INVENTORY MODAL (FIXED CONTRAST & VISIBILITY) -->
+<div class="modal fade" id="addCopiesModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-white" style="background: #0b0f19; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.6);">
+
+            <!-- Modal Header -->
+            <div class="modal-header border-0 p-4 pb-2 d-flex align-items-center justify-content-between">
+                <h5 class="fw-bold m-0 d-flex align-items-center gap-2" style="font-size: 1.15rem; letter-spacing: -0.3px;">
+                    <i class="bi bi-box-seam text-success" style="font-size: 1.25rem;"></i> Update Stock Inventory
+                </h5>
+                <button type="button" class="btn-close btn-close-white opacity-75" data-bs-dismiss="modal" style="font-size: 0.85rem;"></button>
+            </div>
+
+            <form asp-controller="Admin" asp-action="AddCopies" method="post" style="margin: 0;">
+                @Html.AntiForgeryToken()
+                <input type="hidden" id="modalBookId" name="bookId" />
+
+                <div class="modal-body p-4 pt-2">
+
+                    <!-- Book Title Node -->
+                    <div class="mb-4 p-3 rounded-3" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.04);">
+                        <label class="d-block mb-1" style="color: #94a3b8; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase;">Book Title</label>
+                        <div id="modalBookTitle" class="fw-bold text-white fs-6" style="line-height: 1.4; letter-spacing: -0.1px;">—</div>
+                    </div>
+
+                    <!-- Metrics Row -->
+                    <div class="row g-3 mb-4">
+                        <div class="col-6">
+                            <div class="p-3 text-center rounded-3" style="background: rgba(59, 130, 246, 0.03); border: 1px solid rgba(59, 130, 246, 0.15);">
+                                <span class="d-block mb-1" style="color: #cbd5e1; font-size: 0.75rem; font-weight: 600;">Current Available</span>
+                                <span id="modalCurrentAvail" class="fw-bold" style="color: #60a5fa; font-size: 1.4rem; font-family: monospace;">0</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 text-center rounded-3" style="background: rgba(245, 158, 11, 0.03); border: 1px solid rgba(245, 158, 11, 0.15);">
+                                <span class="d-block mb-1" style="color: #cbd5e1; font-size: 0.75rem; font-weight: 600;">Total Inventory</span>
+                                <span id="modalTotalCopies" class="fw-bold" style="color: #f59e0b; font-size: 1.4rem; font-family: monospace;">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Input Node -->
+                    <div class="mb-2">
+                        <label class="form-label d-block mb-2" style="color: #cbd5e1; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;">Number of New Copies to Add</label>
+                        <input type="number" name="additionalCopies" class="form-control text-white text-center fw-bold fs-5"
+                               style="background: #05070f; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; padding: 12px; font-family: monospace;"
+                               min="1" value="1" onfocus="this.style.borderColor='#10b981'; this.style.boxShadow='0 0 10px rgba(16,185,129,0.2)';" onblur="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.boxShadow='none';" required />
+                    </div>
+                </div>
+
+                <!-- Footer Actions -->
+                <div class="modal-footer border-0 p-4 pt-0 d-flex justify-content-end align-items-center gap-2">
+                    <button type="button" class="btn btn-link text-muted text-decoration-none fw-semibold p-0 me-2" data-bs-dismiss="modal" style="font-size: 0.85rem;">Cancel</button>
+                    <button type="submit" class="btn px-4 py-2 fw-bold" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; border-radius: 8px; font-size: 0.88rem; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25); transition: all 0.2s;">
+                        Update Quantity
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function openAddCopiesModal(id, title, avail, total) {
+            document.getElementById('modalBookId').value = id;
+            document.getElementById('modalBookTitle').innerText = title;
+            document.getElementById('modalCurrentAvail').innerText = avail;
+            document.getElementById('modalTotalCopies').innerText = total;
+
+            var modal = new bootstrap.Modal(document.getElementById('addCopiesModal'));
+            modal.show();
+        }
+    </script>
+}

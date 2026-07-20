@@ -1,0 +1,244 @@
+﻿@model List<LibrarySystem.Models.ActivityLog>
+@{
+    ViewData["Title"] = "Security Audit Trail";
+ 
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var actionKey = "ActivityLogs";
+}
+
+@section Styles {
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        .audit-wrapper {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #ffffff;
+        }
+
+        .page-header h4 {
+            font-weight: 800;
+            font-size: 1.5rem;
+            letter-spacing: -0.5px;
+            color: #ffffff;
+            margin: 0;
+        }
+
+        .page-header p {
+            color: #cbd5e1 !important;
+            font-size: 0.9rem;
+            opacity: 0.85;
+            margin-top: 4px;
+        }
+
+       
+        .stat-box {
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(12px);
+            border-radius: 16px;
+            padding: 1.4rem;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+            .stat-box:hover {
+                transform: translateY(-2px);
+            }
+
+        .stat-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #94a3b8;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 800;
+            line-height: 1;
+            margin: 0;
+        }
+
+       
+        .terminal-container {
+            background: #070a13;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+            margin-top: 2rem;
+        }
+
+        .terminal-header {
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 1rem 1.4rem;
+        }
+
+        .terminal-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+
+        .audit-table {
+            margin: 0;
+            width: 100%;
+        }
+
+            .audit-table thead th {
+                background: rgba(11, 15, 27, 0.8);
+                color: #94a3b8 !important;
+                font-size: 0.75rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                padding: 1.1rem 1.4rem;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            }
+
+            .audit-table tbody td {
+                padding: 1.1rem 1.4rem;
+                vertical-align: middle;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+                background: transparent;
+            }
+
+            .audit-table tbody tr:hover td {
+                background: rgba(255, 255, 255, 0.01);
+            }
+
+     
+        .console-time {
+            font-family: 'JetBrains Mono', monospace;
+            color: #3b82f6;
+            font-weight: 500;
+            font-size: 0.88rem;
+        }
+
+        .console-id {
+            font-family: 'JetBrains Mono', monospace;
+            color: #e2e8f0;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .console-text {
+            color: #cbd5e1;
+            font-size: 0.92rem;
+            font-weight: 500;
+        }
+
+     
+        .badge-action {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 5px 10px;
+            border-radius: 6px;
+            text-transform: uppercase;
+        }
+
+        .badge-login {
+            background: rgba(16, 185, 129, 0.1);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .badge-failed {
+            background: rgba(239, 68, 68, 0.1);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+    </style>
+}
+
+<div class="audit-wrapper">
+    <!-- Top Header -->
+    <div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+        <div class="page-header">
+            <h4><i class="bi bi-shield-lock-fill me-2" style="color: #3b82f6;"></i>Security & Activity Audit Trail</h4>
+            <p>Real-time enterprise-grade node monitoring console</p>
+        </div>
+        <div>
+            <span class="badge" style="background: rgba(59, 130, 246, 0.1); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.2); padding: 8px 16px; border-radius: 10px; font-weight: 600; font-size: 0.8rem;">
+                <i class="bi bi-circle-fill me-2 animate-pulse" style="color: #10b981; font-size: 0.6rem;"></i> Enterprise Monitoring Active
+            </span>
+        </div>
+    </div>
+
+    <!-- Counters Matrix Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="stat-box" style="border-left: 4px solid #3b82f6;">
+                <span class="stat-label">Total Logged Actions</span>
+                <h3 class="stat-number">19</h3>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-box" style="border-left: 4px solid #ef4444;">
+                <span class="stat-label">Failed Attempts</span>
+                <h3 class="stat-number" style="color: #ef4444;">2</h3>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-box" style="border-left: 4px solid #10b981;">
+                <span class="stat-label">Successful Logins</span>
+                <h3 class="stat-number" style="color: #10b981;">17</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- 💻 Cyber Console Terminal Container -->
+    <div class="terminal-container">
+        <div class="terminal-header d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center">
+                <span class="terminal-dot" style="background: #ef4444;"></span>
+                <span class="terminal-dot" style="background: #eab308;"></span>
+                <span class="terminal-dot" style="background: #10b981;"></span>
+                <span class="ms-2 small text-muted font-weight-bold" style="font-family: monospace; letter-spacing: 0.5px;">live_audit_stream.log</span>
+            </div>
+            <i class="bi bi-terminal text-muted"></i>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table audit-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Timestamp</th>
+                        <th>Event / Action</th>
+                        <th>User ID</th>
+                        <th>User Name</th>
+                        <th>Audit Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var log in Model)
+                    {
+                        <tr>
+                            <td><span class="console-time">@log.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")</span></td>
+                            <td>
+                                <span class="badge-action @(log.ActionType != null && log.ActionType.Contains("FAILED") ? "badge-failed" : "badge-login")">
+                                    @log.ActionType
+                                </span>
+                            </td>
+                            <td><span class="console-id">@log.UserID</span></td>
+                            <td><span class="text-white font-weight-semibold" style="font-size: 0.92rem;">@log.UserName</span></td>
+                            <td><span class="console-text">@log.Details</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

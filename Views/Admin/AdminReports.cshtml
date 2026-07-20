@@ -1,0 +1,362 @@
+﻿@{
+    ViewData["Title"] = "Reports";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    var mostBorrowed = ViewBag.MostBorrowed as IEnumerable<dynamic> ?? new List<dynamic>();
+    var circulationLog = ViewBag.CirculationLog as List<LibrarySystem.Models.Transaction> ?? new List<LibrarySystem.Models.Transaction>();
+    var fineDetails = ViewBag.FineDetails as List<LibrarySystem.Models.Transaction> ?? new List<LibrarySystem.Models.Transaction>();
+
+    // DYNAMIC MATH: Filtering exactly by transaction state
+    decimal totalPaid = circulationLog
+        .Where(t => t.Status == "Returned" && t.FineAmount > 0)
+        .Sum(t => t.FineAmount);
+
+    // Active or unpaid overdue books calculation stream
+    decimal totalOutstanding = circulationLog
+        .Where(t => t.Status == "Overdue" || (t.Status == "Active" && t.DueDate < DateTime.Now))
+        .Sum(t => t.CalculatedFine);
+}
+
+@section Styles {
+    <style>
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+            .page-header h4 {
+                color: #fff;
+                font-weight: 800;
+                font-size: 1.4rem;
+                margin: 0;
+            }
+
+            .page-header p {
+                color: #64748b;
+                font-size: 0.85rem;
+                margin: 4px 0 0;
+            }
+
+        .reports-nav-tabs {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+            gap: 10px;
+        }
+
+        .reports-tab-link {
+            color: #94a3b8 !important;
+            font-weight: 600;
+            font-size: 0.88rem;
+            padding: 0.6rem 1.2rem !important;
+            border: 1px solid transparent !important;
+            border-radius: 10px 10px 0 0;
+            background: transparent !important;
+        }
+
+            .reports-tab-link.active {
+                color: #3b82f6 !important;
+                border-bottom: 2px solid #3b82f6 !important;
+                background: rgba(11, 11, 30, 0.4) !important;
+            }
+
+        .report-mini-card {
+            background: rgba(11, 11, 30, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            height: 100%;
+        }
+
+        .report-mini-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+        }
+
+        .report-mini-value {
+            font-size: 1.8rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 4px;
+        }
+
+        .report-mini-label {
+            font-size: 0.72rem;
+            color: #64748b;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .section-card {
+            background: rgba(11, 11, 30, 0.6) !important;
+            border: 1px solid rgba(255, 255, 255, 0.05) !important;
+            border-radius: 16px;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .section-header {
+            padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .section-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .table-dark-custom {
+            margin: 0 !important;
+            width: 100% !important;
+            background: transparent !important;
+        }
+
+            .table-dark-custom thead th {
+                background: rgba(5, 5, 15, 0.8) !important;
+                color: #94a3b8 !important;
+                font-size: 0.72rem;
+                padding: 1rem 1.4rem !important;
+            }
+
+            .table-dark-custom tbody td {
+                background: transparent !important;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
+                padding: 1.1rem 1.4rem !important;
+                color: #cbd5e1 !important;
+            }
+
+            .table-dark-custom tbody tr:hover td {
+                background: rgba(255, 255, 255, 0.02) !important;
+                color: #fff !important;
+            }
+
+        .txn-code-badge {
+            color: #60a5fa;
+            background: rgba(37, 99, 235, 0.08);
+            border: 1px solid rgba(59, 130, 246, 0.15);
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            display: inline-block;
+        }
+
+        .borrow-count-badge {
+            color: #4ade80;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            padding: 6px 16px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            display: inline-block;
+            min-width: 70px;
+            text-align: center;
+        }
+
+        .empty-row {
+            text-align: center;
+            padding: 3.5rem 1rem;
+            color: #475569;
+        }
+    </style>
+}
+
+<div class="page-header">
+    <h4><i class="bi bi-bar-chart-line-fill me-2" style="color:#3b82f6;"></i>Reports System</h4>
+    <p>Detailed historical library circulation tracking analytics</p>
+</div>
+
+<ul class="nav nav-tabs reports-nav-tabs mb-4" id="reportsTab" role="tablist">
+    <li class="nav-item">
+        <button class="nav-link reports-tab-link active" id="fine-tab" data-bs-toggle="tab" data-bs-target="#fine-panel" type="button">
+            <i class="bi bi-cash-stack me-2"></i>Fine Summary
+        </button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link reports-tab-link" id="borrowed-tab" data-bs-toggle="tab" data-bs-target="#borrowed-panel" type="button">
+            <i class="bi bi-graph-up-arrow me-2"></i>Most Borrowed
+        </button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link reports-tab-link" id="audit-tab" data-bs-toggle="tab" data-bs-target="#audit-panel" type="button">
+            <i class="bi bi-journal-text me-2"></i>Circulation Audit
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content" id="reportsTabContent">
+
+    <div class="tab-pane fade show active" id="fine-panel" role="tabpanel">
+        <div class="row g-4 mb-4">
+            <div class="col-md-6">
+                <div class="report-mini-card">
+                    <div class="report-mini-icon" style="background: rgba(34, 197, 94, 0.15);"><i class="bi bi-check-circle" style="color: #4ade80;"></i></div>
+                    <div class="report-mini-value" style="color: #4ade80;">Rs. @totalPaid</div>
+                    <div class="report-mini-label">Total Fine Paid</div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="report-mini-card">
+                    <div class="report-mini-icon" style="background: rgba(239, 68, 68, 0.15);"><i class="bi bi-exclamation-octagon" style="color: #fca5a5;"></i></div>
+                    <div class="report-mini-value" style="color: #fca5a5;">Rs. @totalOutstanding</div>
+                    <div class="report-mini-label">Outstanding Balance</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-title"><i class="bi bi-list-task"></i> Fine Breakdown Log</div>
+            </div>
+
+            @if (!fineDetails.Any())
+            {
+                <div class="empty-row">
+                    <i class="bi bi-emoji-smile" style="color: #334155;"></i> No outstanding or processed fines recorded.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-dark-custom align-middle">
+                        <thead>
+                            <tr>
+                                <th>Borrower Student</th>
+                                <th>Book Title</th>
+                                <th>Days Overdue</th>
+                                <th>Fine Amount</th>
+                                <th>Settlement Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var t in fineDetails)
+                            {
+                                int overdueDays = (DateTime.Now - t.DueDate).Days;
+                                if (t.ReturnDate.HasValue) { overdueDays = (t.ReturnDate.Value - t.DueDate).Days; }
+                                overdueDays = overdueDays < 0 ? 0 : overdueDays;
+
+                                decimal currentFine = t.FineAmount > 0 ? t.FineAmount : t.CalculatedFine;
+
+                                <tr>
+                                    <td>
+                                        <div style="color: #f1f5f9; font-weight:600;">@t.Student?.FullName</div>
+                                        <div style="color: #64748b; font-size: 0.78rem; margin-top:2px;">@t.Student?.UniversityID</div>
+                                    </td>
+                                    <td><span style="color:#cbd5e1; font-weight:500;">@t.Book?.Title</span></td>
+                                    <td><span style="color:#94a3b8;">@(overdueDays > 0 ? $"{overdueDays} Days" : "—")</span></td>
+                                    <td><span style="color: #fca5a5; font-weight: 700;">Rs. @currentFine</span></td>
+                                    <td>
+                                        @if (t.Status == "Returned" && t.FineAmount > 0)
+                                        {
+                                            <span style="background: rgba(34, 197, 94, 0.1); color: #86efac; border: 1px solid rgba(34, 197, 94, 0.2); padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; font-weight:600;">Settled</span>
+                                        }
+                                        else
+                                        {
+                                            <span style="background: rgba(239, 68, 68, 0.1); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.2); padding: 4px 10px; border-radius: 6px; font-size: 0.72rem; font-weight:600;">Pending</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="tab-pane fade" id="borrowed-panel" role="tabpanel">
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-title"><i class="bi bi-journal-bookmark-fill"></i> Most Demanded Titles Rank</div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-dark-custom align-middle">
+                    <thead>
+                        <tr>
+                            <th style="width: 15%;">Rank Position</th>
+                            <th style="width: 50%;">Book Identity Title</th>
+                            <th style="width: 35%; text-align: center;">Total Times Borrowed</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (mostBorrowed.Any())
+                        {
+                            int rank = 1;
+                            @foreach (dynamic item in mostBorrowed)
+                            {
+                                <tr>
+                                    <td><span class="txn-code-badge"># @rank</span></td>
+                                    <td>
+                                        <div style="color: #f1f5f9; font-weight:600;">@item.Title</div>
+                                        <div style="color: #64748b; font-size: 0.78rem; margin-top:2px;">by @item.Author</div>
+                                    </td>
+                                    <td style="text-align: center;">
+                                        <span class="borrow-count-badge">@item.BorrowCount</span>
+                                    </td>
+                                </tr>
+                                rank++;
+                            }
+                        }
+                        else
+                        {
+                            <tr><td colspan="3" class="empty-row">No indexing analysis log found.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-pane fade" id="audit-panel" role="tabpanel">
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-title"><i class="bi bi-shield-check"></i> Comprehensive Audit Archive Stream</div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-dark-custom align-middle">
+                    <thead>
+                        <tr>
+                            <th style="width: 20%;">Transaction ID</th>
+                            <th style="width: 25%;">Student Name</th>
+                            <th style="width: 25%;">Book Title</th>
+                            <th style="width: 15%;">Issue Date</th>
+                            <th style="width: 15%;">Return/Target Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (circulationLog.Any())
+                        {
+                            @foreach (var t in circulationLog)
+                            {
+                                <tr>
+                                    <td><span class="txn-code-badge">@t.TxnCode</span></td>
+                                    <td>
+                                        <div style="color:#f1f5f9; font-weight:600;">@t.Student?.FullName</div>
+                                        <div style="color: #64748b; font-size: 0.78rem;">@t.Student?.UniversityID</div>
+                                    </td>
+                                    <td><span style="color:#cbd5e1; font-weight:500;">@t.Book?.Title</span></td>
+                                    <td><span style="color:#94a3b8;">@t.IssueDate.ToString("dd MMM yyyy")</span></td>
+                                    <td><span style="color:#94a3b8;">@(t.ReturnDate.HasValue? t.ReturnDate.Value.ToString("dd MMM yyyy") : t.DueDate.ToString("dd MMM yyyy"))</span></td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr><td colspan="5" class="empty-row">Archive stream empty.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,370 @@
+@model LibrarySystem.Models.LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scanexus — Sign In</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #03030a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            position: relative;
+            overflow: hidden;
+        }
+
+            /* Subtle Background Glows */
+            body::before {
+                content: '';
+                position: absolute;
+                width: 600px;
+                height: 600px;
+                border-radius: 50%;
+                background: radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, transparent 70%);
+                top: -200px;
+                left: -200px;
+                pointer-events: none;
+            }
+
+            body::after {
+                content: '';
+                position: absolute;
+                width: 500px;
+                height: 500px;
+                border-radius: 50%;
+                background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+                bottom: -150px;
+                right: -150px;
+                pointer-events: none;
+            }
+
+        /* Premium Modern Card Container */
+        .login-card {
+            background: rgba(11, 11, 30, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(16px);
+            border-radius: 24px;
+            padding: 2.5rem 2.2rem;
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Logo Hexagon */
+        .icon-hex {
+            position: relative;
+            width: 68px;
+            height: 68px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.2rem;
+        }
+
+        .hex-bg {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+            clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+        }
+
+        .hex-inner {
+            position: relative;
+            z-index: 1;
+        }
+
+            .hex-inner i {
+                font-size: 28px;
+                color: #ffffff;
+                text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            }
+
+        /* Prominent Brand Section */
+        .brand-block {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+            .brand-block h1 {
+                font-size: 2.1rem;
+                font-weight: 800;
+                color: #fff;
+                margin: 0 0 0.4rem;
+                letter-spacing: -0.5px;
+            }
+
+        .brand-name-blue {
+            background: linear-gradient(135deg, #60a5fa, #a5b4fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-block p {
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #94a3b8; /* Rich prominent text color */
+            opacity: 0.9;
+            margin: 0;
+        }
+
+        /* Divider Line */
+        .sep {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 1.8rem;
+        }
+
+        .sep-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+        }
+
+        .sep span {
+            font-size: 0.75rem;
+            color: #475569;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        /* Form Inputs */
+        .field-label {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .input-group-container {
+            margin-bottom: 1.2rem;
+        }
+
+        .input-wrap {
+            display: flex;
+            align-items: center;
+            background: rgba(5, 5, 15, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 0 16px;
+            height: 50px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+            .input-wrap:focus-within {
+                border-color: #3b82f6;
+                box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+                background: rgba(5, 5, 15, 0.9);
+            }
+
+            .input-wrap .field-icon {
+                font-size: 18px;
+                color: #475569;
+                margin-right: 12px;
+                flex-shrink: 0;
+                transition: color 0.2s;
+            }
+
+            .input-wrap:focus-within .field-icon {
+                color: #3b82f6;
+            }
+
+            .input-wrap input {
+                background: transparent;
+                border: none;
+                outline: none;
+                color: #f1f5f9;
+                font-size: 0.95rem;
+                flex: 1;
+                width: 100%;
+            }
+
+                .input-wrap input::placeholder {
+                    color: #334155;
+                }
+
+        /* Eye Toggle Button */
+        .eye-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+            .eye-btn:hover {
+                color: #60a5fa;
+                background: rgba(255, 255, 255, 0.05);
+            }
+
+            .eye-btn i {
+                font-size: 18px;
+            }
+
+        /* Modernized Login Button */
+        .btn-login {
+            width: 100%;
+            padding: 0.85rem;
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+        }
+
+            .btn-login:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+                opacity: 0.95;
+            }
+
+            .btn-login:active {
+                transform: translateY(1px);
+            }
+
+        /* Alert styling */
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Autofill Fix for Dark Mode */
+        .input-wrap input:-webkit-autofill,
+        .input-wrap input:-webkit-autofill:hover,
+        .input-wrap input:-webkit-autofill:focus {
+            -webkit-box-shadow: 0 0 0px 1000px #05050f inset !important;
+            -webkit-text-fill-color: #f1f5f9 !important;
+            caret-color: #f1f5f9;
+        }
+
+        .validation-msg {
+            display: block;
+            margin-top: 4px;
+            margin-left: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+
+        <!-- Hexagon Brand Logo -->
+        <div class="icon-hex">
+            <div class="hex-bg"></div>
+            <div class="hex-inner">
+                <i class="bi bi-qr-code-scan"></i>
+            </div>
+        </div>
+
+        <!-- Prominent Title & Slogan -->
+        <div class="brand-block">
+            <h1>Scan<span class="brand-name-blue">exus</span></h1>
+            <p>Scan &bull; Borrow &bull; Read</p>
+        </div>
+
+        <div class="sep">
+            <div class="sep-line"></div>
+            <span>Sign in</span>
+            <div class="sep-line"></div>
+        </div>
+
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert-danger">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["Error"]
+            </div>
+        }
+
+        <form asp-action="Login" method="post">
+            @Html.AntiForgeryToken()
+
+            <!-- University ID Input -->
+            <div class="input-group-container">
+                <label class="field-label">ID</label>
+                <div class="input-wrap">
+                    <i class="bi bi-person-badge field-icon"></i>
+                    <input asp-for="UniversityID" type="text" placeholder="University ID or Admin ID" autocomplete="off" />
+                </div>
+                <span asp-validation-for="UniversityID" class="text-danger small validation-msg"></span>
+            </div>
+
+            <!-- Password Input -->
+            <div class="input-group-container">
+                <label class="field-label">Password</label>
+                <div class="input-wrap">
+                    <i class="bi bi-lock field-icon"></i>
+                    <input asp-for="Password" type="password" id="pwd" placeholder="Enter your password" />
+                    <button class="eye-btn" type="button" onclick="togglePwd()" aria-label="Toggle password">
+                        <i class="bi bi-eye" id="eyeIcon"></i>
+                    </button>
+                </div>
+                <span asp-validation-for="Password" class="text-danger small validation-msg"></span>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn-login">
+                <i class="bi bi-box-arrow-in-right"></i>
+                Sign In
+            </button>
+        </form>
+
+    </div>
+
+    <script>
+        function togglePwd() {
+            const pwd = document.getElementById('pwd');
+            const icon = document.getElementById('eyeIcon');
+            if (pwd.type === 'password') {
+                pwd.type = 'text';
+                icon.className = 'bi bi-eye-slash';
+            } else {
+                pwd.type = 'password';
+                icon.className = 'bi bi-eye';
+            }
+        }
+    </script>
+</body>
+</html>

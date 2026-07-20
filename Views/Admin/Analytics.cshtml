@@ -1,0 +1,375 @@
+﻿@model LibrarySystem.Models.DashboardViewModel
+@{
+    ViewData["Title"] = "Analytics";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+
+    var mostActive = (List<(string FullName, string UniversityID, int BorrowCount)>)ViewBag.MostActiveStudents;
+    var popularBooks = (List<(string Title, string Author, int Count)>)ViewBag.PopularBooks;
+    var peakTimings = (List<(int Hour, int Count)>)ViewBag.PeakTimings;
+    var fineTrends = (List<(string Month, decimal TotalFine)>)ViewBag.FineTrends;
+
+    // 📊 MULTI-CLUSTER COUPLING: Dynamic data stream binding matching updated controller
+    var departmentStats = ViewBag.DepartmentStats;
+}
+
+@section Styles {
+    <style>
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+            .page-header h4 {
+                color: #fff;
+                font-weight: 800;
+                font-size: 1.4rem;
+                margin: 0;
+                letter-spacing: -0.3px;
+            }
+
+            .page-header p {
+                color: #cbd5e1 !important;
+                font-size: 0.85rem;
+                margin: 4px 0 0;
+                font-weight: 500;
+                opacity: 0.9;
+            }
+
+        .section-card {
+            background: rgba(11, 11, 30, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            height: 100%;
+        }
+
+        .section-header {
+            padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .section-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .section-title i {
+                color: #3b82f6;
+                font-size: 18px;
+            }
+
+        .section-body {
+            padding: 1.5rem;
+        }
+
+        .table {
+            margin: 0;
+            color: #cbd5e1;
+        }
+
+            .table thead th {
+                background: rgba(5, 5, 15, 0.8);
+                color: #94a3b8;
+                font-size: 0.72rem;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                border-color: rgba(255, 255, 255, 0.05);
+                padding: 0.9rem 1.4rem;
+                font-weight: 600;
+                text-align: left;
+            }
+
+            .table tbody td {
+                border-color: rgba(255, 255, 255, 0.03);
+                padding: 1rem 1.4rem;
+                vertical-align: middle;
+                font-size: 0.9rem;
+                background: transparent;
+                color: #cbd5e1;
+                text-align: left;
+            }
+
+            .table tbody tr:hover td {
+                background: rgba(255, 255, 255, 0.02) !important;
+                color: #fff;
+            }
+
+        .student-name {
+            color: #f1f5f9;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .student-id {
+            color: #64748b;
+            font-size: 0.76rem;
+            margin-top: 2px;
+            font-weight: 500;
+        }
+
+        .rank-badge {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            background: rgba(59,130,246,0.1);
+            border: 1px solid rgba(59,130,246,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #60a5fa;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        .borrow-badge {
+            color: #4ade80;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        .empty-row {
+            text-align: center;
+            padding: 2.5rem 1rem;
+            color: #475569;
+        }
+
+            .empty-row i {
+                font-size: 2rem;
+                display: block;
+                margin-bottom: 0.5rem;
+            }
+
+        canvas {
+            max-height: 280px;
+        }
+    </style>
+}
+
+<div class="page-header">
+    <h4><i class="bi bi-graph-up me-2" style="color:#3b82f6;"></i>Analytics Dashboard</h4>
+    <p>Behavioral trends and circulation intelligence</p>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-title"><i class="bi bi-person-check-fill"></i> Most Active Students</div>
+            </div>
+            @if (mostActive == null || !mostActive.Any())
+            {
+                <div class="empty-row"><i class="bi bi-people"></i>No borrowing activity yet.</div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr><th>Rank</th><th>Student</th><th>Books Borrowed</th></tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                int r1 = 1;
+                            }
+                            @foreach (var s in mostActive)
+                            {
+                                <tr>
+                                    <td><span class="rank-badge">@r1</span></td>
+                                    <td>
+                                        <div class="student-name">@s.FullName</div>
+                                        <div class="student-id">@s.UniversityID</div>
+                                    </td>
+                                    <td><span class="borrow-badge">@s.BorrowCount</span></td>
+                                </tr>
+                                r1++;
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-title"><i class="bi bi-book-half"></i> Popular Books</div>
+            </div>
+            <div class="section-body">
+                <canvas id="popularBooksChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-title"><i class="bi bi-clock-history"></i> Peak Issuing Timings (by Hour)</div>
+            </div>
+            <div class="section-body">
+                <canvas id="peakTimingsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-title"><i class="bi bi-cash-coin"></i> Fine Trends (Monthly)</div>
+            </div>
+            <div class="section-body">
+                <canvas id="fineTrendsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12">
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-title"><i class="bi bi-building-fill"></i> Department-wise Statistics</div>
+            </div>
+            @if (departmentStats == null)
+            {
+                <div class="empty-row"><i class="bi bi-bar-chart"></i>No student department data available.</div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Department</th>
+                                <th>Batch</th>
+                                <th>Total Students</th>
+                                <th>Total Borrows</th>
+                                <th>Avg Borrows / Student</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in departmentStats)
+                            {
+                                <tr>
+                                    <td><span class="student-name">@item.Department</span></td>
+                                    <td><span style="color: #a5b4fc;" class="fw-semibold">@item.Batch</span></td>
+                                    <td><span style="color:#cbd5e1;">@item.TotalStudents</span></td>
+                                    <td><span class="borrow-badge">@item.TotalBorrows</span></td>
+                                    <td><span style="color:#94a3b8;">@item.AvgBorrows.ToString("0.0")</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+
+        // Popular Books Chart
+        const popularBooksCtx = document.getElementById('popularBooksChart');
+        new Chart(popularBooksCtx, {
+            type: 'bar',
+            data: {
+                labels: [@Html.Raw(string.Join(",", popularBooks.Select(b => $"'{b.Title.Replace("'", "\\'")}'")))],
+                datasets: [{
+                    label: 'Times Borrowed',
+                    data: [@string.Join(",", popularBooks.Select(b => b.Count))],
+
+                    // 🎨 MATCHING AI THEME COLOR PALETTE (Glassmorphic translucent fills)
+                    backgroundColor: [
+                        'rgba(59, 130, 246, 0.25)',  // Cyber Blue
+                        'rgba(168, 85, 247, 0.25)',  // Deep Purple
+                        'rgba(236, 72, 153, 0.25)',  // Hot Pink
+                        'rgba(234, 179, 8, 0.25)',   // Electric Yellow
+                        'rgba(34, 197, 94, 0.25)'    // Neon Green
+                    ],
+                    borderColor: [
+                        '#60a5fa', // Blue solid border
+                        '#a855f7', // Purple solid border
+                        '#ec4899', // Pink solid border
+                        '#eab308', // Yellow solid border
+                        '#22c55e'  // Green solid border
+                    ],
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { stepSize: 1 } },
+                    y: { grid: { display: false } }
+                }
+            }
+        });
+
+        // Peak Timings Chart
+        const peakCtx = document.getElementById('peakTimingsChart');
+        new Chart(peakCtx, {
+            type: 'line',
+            data: {
+                labels: [@Html.Raw(string.Join(",", peakTimings.Select(p => $"'{p.Hour}:00'")))],
+                datasets: [{
+                    label: 'Transactions',
+                    data: [@string.Join(",", peakTimings.Select(p => p.Count))],
+                    borderColor: '#4f46e5',
+                    backgroundColor: 'rgba(79, 70, 229, 0.15)',
+                    fill: true,
+                    tension: 0.4,
+                    pointBackgroundColor: '#a5b4fc'
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { color: 'rgba(255,255,255,0.05)' } },
+                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { stepSize: 1 } }
+                }
+            }
+        });
+
+        // Fine Trends Chart
+        const fineCtx = document.getElementById('fineTrendsChart');
+        new Chart(fineCtx, {
+            type: 'bar',
+            data: {
+                labels: [@Html.Raw(string.Join(",", fineTrends.Select(f => $"'{f.Month}'")))],
+                datasets: [{
+                    label: 'Fine Collected (Rs.)',
+                    data: [@string.Join(",", fineTrends.Select(f => f.TotalFine))],
+                    backgroundColor: 'rgba(239, 68, 68, 0.4)',
+                    borderColor: '#ef4444',
+                    borderWidth: 2,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { grid: { color: 'rgba(255,255,255,0.05)' } }
+                }
+            }
+        });
+    </script>
+}

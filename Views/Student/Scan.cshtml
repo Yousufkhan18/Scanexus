@@ -1,0 +1,98 @@
+@model LibrarySystem.Models.QRScanViewModel
+@{
+    ViewData["Title"] = "Scan QR Code";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card p-4">
+            <div class="text-center mb-4">
+                <i class="bi bi-qr-code-scan display-4 text-success"></i>
+                <h4 class="mt-2 fw-bold">Scan Book QR Code</h4>
+                <p class="text-muted small">Point your camera at the book's QR code, or enter the code manually</p>
+            </div>
+
+            <!-- Camera QR Scanner -->
+            <div class="mb-3 text-center">
+                <div id="reader" class="mx-auto" style="width:280px; display:none;"></div>
+                <button class="btn btn-outline-success btn-sm" id="startCamera">
+                    <i class="bi bi-camera me-1"></i>Open Camera Scanner
+                </button>
+            </div>
+
+            <hr class="my-3" />
+
+            <!-- Manual entry form -->
+            <form asp-action="Scan" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label asp-for="QRCode" class="form-label fw-semibold">
+                        <i class="bi bi-upc me-1"></i>QR Code / Book Code
+                    </label>
+                    <input asp-for="QRCode" class="form-control form-control-lg" id="qrInput"
+                           placeholder="e.g. SSUET-LIB-BOOK-978-..." autocomplete="off" />
+                    <span asp-validation-for="QRCode" class="text-danger small"></span>
+                    <div class="form-text">
+                        QR codes start with <code>SSUET-LIB-BOOK-</code> followed by ISBN
+                    </div>
+                </div>
+
+                <!-- Quick Test Buttons -->
+                <div class="mb-3">
+                    <small class="text-muted">Quick test — click a book to fill:</small>
+                    <div class="d-flex flex-wrap gap-1 mt-1">
+                        <button type="button" class="btn btn-sm btn-outline-secondary qr-fill"
+                                data-qr="SSUET-LIB-BOOK-978-0-13-468599-1">Database Systems</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary qr-fill"
+                                data-qr="SSUET-LIB-BOOK-978-0-13-110362-7">C Programming</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary qr-fill"
+                                data-qr="SSUET-LIB-BOOK-978-0-201-63361-0">Design Patterns</button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-2">
+                    <i class="bi bi-check-circle me-2"></i>Issue Book
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <!-- HTML5-QRCode for real camera scanning -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script>
+        // Quick fill buttons
+        document.querySelectorAll('.qr-fill').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.getElementById('qrInput').value = btn.dataset.qr;
+            });
+        });
+
+        // Camera QR scanner
+        let scanner;
+        document.getElementById('startCamera').addEventListener('click', function () {
+            const readerDiv = document.getElementById('reader');
+            readerDiv.style.display = 'block';
+            this.style.display = 'none';
+
+            scanner = new Html5Qrcode("reader");
+            scanner.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: 220 },
+                (decodedText) => {
+                    document.getElementById('qrInput').value = decodedText;
+                    scanner.stop();
+                    readerDiv.style.display = 'none';
+                }
+            ).catch(err => {
+                alert('Camera not available: ' + err);
+                readerDiv.style.display = 'none';
+                this.style.display = 'inline-block';
+            });
+        });
+    </script>
+}

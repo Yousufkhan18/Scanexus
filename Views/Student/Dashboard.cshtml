@@ -1,0 +1,438 @@
+﻿@model LibrarySystem.Models.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .welcome-bar {
+            background: rgba(11, 11, 30, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            border-radius: 16px;
+            padding: 1.6rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .welcome-name {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 6px;
+            letter-spacing: -0.3px;
+        }
+
+        .welcome-meta {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+
+            .welcome-meta span {
+                color: #94a3b8;
+                font-weight: 600;
+            }
+
+        .btn-borrow {
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+            border: none;
+            color: #fff;
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 0.7rem 1.4rem;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+            .btn-borrow:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+                color: #fff;
+                opacity: 0.95;
+            }
+
+        .stat-card {
+            background: rgba(11, 11, 30, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            height: 100%;
+            transition: all 0.25s ease;
+        }
+
+            .stat-card:hover {
+                border-color: #3b82f6;
+                transform: translateY(-2px);
+                box-shadow: 0 12px 35px rgba(37, 99, 235, 0.1);
+            }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1.4rem;
+        }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .section-card {
+            background: rgba(11, 11, 30, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .section-header i {
+                color: #3b82f6;
+                font-size: 18px;
+            }
+
+        .scanexus-table {
+            width: 100% !important;
+            margin: 0 !important;
+            border-collapse: collapse;
+        }
+
+            .scanexus-table thead th {
+                background: rgba(5, 5, 15, 0.8) !important;
+                color: #94a3b8 !important;
+                font-size: 0.72rem;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+                padding: 1rem 1.4rem !important;
+                font-weight: 600;
+                text-align: left;
+            }
+
+            .scanexus-table tbody td {
+                border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
+                padding: 1.2rem 1.4rem !important;
+                vertical-align: middle;
+                font-size: 0.92rem;
+                background: transparent !important;
+                color: #cbd5e1 !important;
+                text-align: left;
+            }
+
+            .scanexus-table tbody tr:hover td {
+                color: #fff !important;
+                background: rgba(255, 255, 255, 0.02) !important;
+            }
+
+        .book-title {
+            color: #f1f5f9;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .book-author {
+            color: #60a5fa;
+            font-size: 0.8rem;
+            margin-top: 3px;
+            font-weight: 500;
+        }
+
+        .txn-code-badge {
+            color: #60a5fa !important;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.85rem;
+            font-weight: 500;
+            background: rgba(37, 99, 235, 0.08) !important;
+            border: 1px solid rgba(59, 130, 246, 0.15) !important;
+            padding: 6px 12px !important;
+            border-radius: 8px;
+            white-space: nowrap;
+            display: inline-block;
+        }
+
+        .date-display-text {
+            color: #94a3b8;
+            white-space: nowrap;
+        }
+
+        .badge-active {
+            background: rgba(34, 197, 94, 0.1);
+            color: #86efac;
+            border: 1px solid rgba(34, 197, 94, 0.2);
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-overdue {
+            background: rgba(239, 68, 68, 0.1);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 5px 12px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .fine-text {
+            color: #fca5a5;
+            font-weight: 700;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 1.5rem;
+            color: #475569;
+        }
+
+            .empty-state i {
+                font-size: 3rem;
+                display: block;
+                margin-bottom: 0.8rem;
+                color: #334155;
+            }
+
+            .empty-state a {
+                color: #3b82f6;
+                text-decoration: none;
+                font-weight: 600;
+            }
+    </style>
+}
+
+<div class="welcome-bar">
+    <div>
+        <div class="welcome-name">@Model.Student.FullName</div>
+        <div class="welcome-meta">
+            <span>@Model.Student.UniversityID</span> &bull;
+            Semester <span>@Model.Student.Semester</span> &bull;
+            <span>@Model.Student.Batch</span>
+        </div>
+    </div>
+    <a href="/Books/Index" class="btn-borrow">
+        <i class="bi bi-plus-lg"></i> Borrow a Book
+    </a>
+</div>
+
+@if (ViewBag.OverdueNotifications != null && ((IEnumerable<dynamic>)ViewBag.OverdueNotifications).Any())
+{
+    foreach (var noti in ViewBag.OverdueNotifications)
+    {
+        <div class="alert alert-danger d-flex align-items-center justify-content-between fade show" role="alert" style="background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.25); color: #fca5a5; border-radius: 12px; padding: 0.9rem 1.4rem; margin-bottom: 1.5rem; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);">
+            <div class="d-flex align-items-center gap-3">
+                <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size: 1.2rem; flex-shrink: 0;"></i>
+                <div>
+                    <strong class="text-white">Overdue Warning:</strong> @noti.Message
+                </div>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close" style="font-size: 0.75rem; box-shadow: none; outline: none; border: none;"></button>
+        </div>
+    }
+}
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(34, 197, 94, 0.15);">
+                <i class="bi bi-book-fill" style="color:#86efac;"></i>
+            </div>
+            <div>
+                <div class="stat-value" style="color:#86efac;">@Model.ActiveBooks.Count</div>
+                <div class="stat-label">Currently Borrowed</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(59, 130, 246, 0.15);">
+                <i class="bi bi-bookmark-fill" style="color:#60a5fa;"></i>
+            </div>
+            <div>
+                <div class="stat-value" style="color:#60a5fa;">@Model.BooksRemaining</div>
+                <div class="stat-label">Slots Remaining (Max 3)</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: rgba(250, 204, 21, 0.15);">
+                <i class="bi bi-clock-history" style="color:#facc15;"></i>
+            </div>
+            <div>
+                <div class="stat-value" style="color:#facc15;">@Model.History.Count</div>
+                <div class="stat-label">Books Returned</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="section-card">
+    <div class="section-header">
+        <i class="bi bi-journal-check"></i> Currently Borrowed Books
+    </div>
+    @if (!Model.ActiveBooks.Any())
+    {
+        <div class="empty-state">
+            <i class="bi bi-inbox-fill"></i>
+            No books borrowed yet. <a href="/Books/Index">Browse catalog</a>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table scanexus-table">
+                <thead>
+                    <tr>
+                        <th style="width: 25%;">Book Details</th>
+                        <th style="width: 25%;">Transaction ID</th>
+                        <th style="width: 15%;">Issue Date</th>
+                        <th style="width: 15%;">Due Date</th>
+                        <th style="width: 10%;">Status</th>
+                        <th style="width: 10%;">Est. Fine</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var t in Model.ActiveBooks)
+                    {
+                        <tr>
+                            <td>
+                                <div class="book-title">@t.Book?.Title</div>
+                                <div class="book-author">@t.Book?.Author</div>
+                            </td>
+                            <td><span class="txn-code-badge">@t.TxnCode</span></td>
+                            <td><span class="date-display-text">@t.IssueDate.ToString("dd MMM yyyy")</span></td>
+                            <td>
+                                @if (t.IsOverdue)
+                                {
+                                    <span style="color: #fca5a5; font-weight: 600;">@t.DueDate.ToString("dd MMM yyyy")</span>
+                                }
+                                else
+                                {
+                                    <span style="color: #facc15; font-weight: 500;">@t.DueDate.ToString("dd MMM yyyy")</span>
+                                }
+                            </td>
+                            <td>
+                                @if (t.IsOverdue)
+                                {
+                                    <span class="badge-overdue">Overdue</span>
+                                }
+                                else
+                                {
+                                    <span class="badge-active">Active</span>
+                                }
+                            </td>
+                            <td>
+                                @if (t.IsOverdue)
+                                {
+                                    <span class="fine-text">Rs. @t.CalculatedFine</span>
+                                }
+                                else
+                                {
+                                    <span style="color:#475569; font-weight: 500;">—</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+@if (Model.History.Any())
+{
+    <div class="section-card">
+        <div class="section-header">
+            <i class="bi bi-clock-history"></i> Borrowing History
+        </div>
+        <div class="table-responsive">
+            <table class="table scanexus-table">
+                <thead>
+                    <tr>
+                        <th style="width: 30%;">Book Details</th>
+                        <th style="width: 25%;">Transaction ID</th>
+                        <th style="width: 15%;">Issue Date</th>
+                        <th style="width: 15%;">Return Date</th>
+                        <th style="width: 15%;">Fine Paid</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var t in Model.History)
+                    {
+                        <tr>
+                            <td>
+                                <div class="book-title">@t.Book?.Title</div>
+                                <div class="book-author">@t.Book?.Author</div>
+                            </td>
+                            <td><span class="txn-code-badge">@t.TxnCode</span></td>
+                            <td><span class="date-display-text">@t.IssueDate.ToString("dd MMM yyyy")</span></td>
+                            <td><span class="date-display-text">@(t.ReturnDate?.ToString("dd MMM yyyy") ?? "—")</span></td>
+                            <td>
+                                @if (t.FineAmount > 0)
+                                {
+                                    <span class="fine-text">Rs. @t.FineAmount</span>
+                                }
+                                else
+                                {
+                                    <span style="color:#475569; font-weight: 500;">None</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

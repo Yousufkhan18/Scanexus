@@ -1,0 +1,182 @@
+@model LibrarySystem.Models.Book
+@{
+    ViewData["Title"] = "Add Book";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+@section Styles {
+    <style>
+        .page-header {
+            margin-bottom: 2.5rem;
+        }
+
+            .page-header h4 {
+                color: #fff;
+                font-weight: 800;
+                margin: 0;
+                font-size: 1.4rem;
+                letter-spacing: -0.3px;
+            }
+
+            .page-header p {
+                color: #64748b;
+                font-size: 0.88rem;
+                margin: 4px 0 0;
+                font-weight: 500;
+            }
+
+        /* Premium Cyber Form Wrapper Card */
+        .cyber-form-card {
+            background: rgba(11, 11, 30, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 2.2rem;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-label-cyber {
+            color: #94a3b8;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        /* Strict Override for flat Bootstrap White Input Boxes */
+        .cyber-input-control {
+            background: #04040d !important;
+            border: 1px solid rgba(255, 255, 255, 0.12) !important;
+            color: #ffffff !important;
+            border-radius: 10px !important;
+            height: 46px !important;
+            padding: 0.6rem 1.1rem !important;
+            font-size: 0.95rem !important;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+
+            .cyber-input-control::placeholder {
+                color: #475569 !important;
+                opacity: 1;
+            }
+
+            .cyber-input-control:focus {
+                border-color: #3b82f6 !important;
+                box-shadow: 0 0 15px rgba(59, 130, 246, 0.25) !important;
+                outline: 0;
+            }
+
+            /* Readonly background constraint rule */
+            .cyber-input-control[readonly] {
+                background: rgba(5, 5, 15, 0.6) !important;
+                color: #60a5fa !important;
+                border-color: rgba(37, 99, 235, 0.2) !important;
+                font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+                font-weight: 500;
+            }
+
+        /* Sync buttons look with global catalog metrics */
+        .btn-cyber-submit {
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.25);
+            border: none;
+            color: #fff !important;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 0.65rem 1.6rem;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+            .btn-cyber-submit:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 6px 18px rgba(37, 99, 235, 0.35);
+                opacity: 0.95;
+            }
+
+        .btn-cyber-cancel {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #94a3b8 !important;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 0.65rem 1.6rem;
+            border-radius: 10px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+            .btn-cyber-cancel:hover {
+                background: rgba(255, 255, 255, 0.06);
+                color: #fff !important;
+                border-color: rgba(255, 255, 255, 0.15);
+            }
+    </style>
+}
+
+<div class="page-header">
+    <h4><i class="bi bi-bookmark-plus-fill me-2" style="color:#3b82f6;"></i>Add New Book</h4>
+    <p>Fill in the metadata architecture to index a book into the library system logs</p>
+</div>
+
+<div class="row">
+    <div class="col-md-8 col-lg-7">
+        <div class="cyber-form-card">
+            <form asp-action="AddBook" method="post" autocomplete="off">
+                @Html.AntiForgeryToken()
+
+                <div class="mb-4">
+                    <label class="form-label-cyber">Book Title *</label>
+                    <input asp-for="Title" class="form-control cyber-input-control" placeholder="e.g. Database System Concepts" required />
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label-cyber">Author *</label>
+                    <input asp-for="Author" class="form-control cyber-input-control" placeholder="e.g. Silberschatz, Korth" required />
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label-cyber">Publisher</label>
+                    <input asp-for="Publisher" class="form-control cyber-input-control" placeholder="e.g. McGraw-Hill" />
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label-cyber">ISBN Registry</label>
+                    <input asp-for="ISBN" class="form-control cyber-input-control" id="isbnInput" readonly placeholder="Fetching target code identity stream..." />
+                    <div class="text-muted small mt-2 d-flex align-items-center gap-1" style="font-size: 0.78rem;">
+                        <i class="bi bi-info-circle-fill text-primary"></i>
+                        <span>ISBN aur QR token endpoints background database se automatically calculate hotey hain.</span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label-cyber">Number of Copies Allocated *</label>
+                    <input asp-for="TotalCopies" type="number" min="1" class="form-control cyber-input-control" value="1" required />
+                </div>
+
+                <div class="d-flex gap-3 pt-2">
+                    <button type="submit" class="btn-cyber-submit">
+                        <i class="bi bi-plus-lg"></i> Add Book Entity
+                    </button>
+                    <a href="/Admin/Books" class="btn-cyber-cancel">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Asynchronous background worker to pull next auto-incremental indexing parameters
+    fetch('/Admin/LastBookISBN')
+        .then(r => r.json())
+        .then(data => {
+            document.getElementById('isbnInput').value = data.isbn;
+        });
+</script>

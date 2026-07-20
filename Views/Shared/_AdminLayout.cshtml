@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Scanexus Admin</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" />
+
+    <style>
+        body {
+            background: #03030a;
+            color: #cbd5e1;
+            padding-top: 95px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .admin-navbar {
+            background: rgba(11, 11, 30, 0.75) !important;
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.3);
+            padding: 0.5rem 0;
+        }
+
+        .custom-navbar-toggler {
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.02);
+            padding: 6px 12px;
+            border-radius: 8px;
+            color: #fff;
+            transition: all 0.2s ease;
+        }
+
+            .custom-navbar-toggler:focus {
+                box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+                border-color: #3b82f6;
+            }
+
+        .nav-link-admin {
+            color: #94a3b8 !important;
+            font-weight: 600;
+            font-size: 0.88rem;
+            letter-spacing: 0.3px;
+            padding: 0.5rem 0.85rem !important;
+            border-radius: 10px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+            .nav-link-admin:hover, .nav-link-admin.active {
+                color: #fff !important;
+                background: rgba(37, 99, 235, 0.1);
+                box-shadow: inset 0 0 10px rgba(59, 130, 246, 0.1);
+            }
+
+        .nav-link-api {
+            color: #a7f3d0 !important;
+        }
+
+            .nav-link-api:hover {
+                background: rgba(16, 185, 129, 0.1) !important;
+                color: #10b981 !important;
+            }
+
+        .admin-badge {
+            background: rgba(59, 130, 246, 0.05);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 7px 14px;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 38px;
+            white-space: nowrap;
+        }
+
+        .btn-logout-admin {
+            background: rgba(239, 68, 68, 0.05);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #fca5a5;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 7px 14px;
+            border-radius: 10px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 38px;
+            white-space: nowrap;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+            .btn-logout-admin:hover {
+                background: rgba(239, 68, 68, 0.15);
+                border-color: #ef4444;
+                color: #fca5a5;
+                box-shadow: 0 0 15px rgba(239, 68, 68, 0.15);
+            }
+
+        .brand-shimmer {
+            background: linear-gradient(135deg, #60a5fa, #a5b4fc);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+    </style>
+    @RenderSection("Styles", required: false)
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-xl navbar-dark fixed-top admin-navbar">
+        <div class="container-fluid px-lg-5">
+            <a class="navbar-brand d-flex align-items-center gap-3 text-decoration-none me-2" href="/Admin/Dashboard">
+                <div style="position: relative; width: 42px; height: 44px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <div style="position: absolute; inset: 0; background: linear-gradient(135deg, #2563eb, #4f46e5); clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);"></div>
+                    <i class="bi bi-qr-code-scan" style="position: relative; z-index: 1; font-size: 1.15rem; color: #ffffff; text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);"></i>
+                </div>
+
+                <div class="d-flex flex-column">
+                    <div style="font-size: 1.25rem; font-weight: 800; color: #ffffff; line-height: 1.1; letter-spacing: -0.3px;">
+                        Scan<span class="brand-shimmer">exus</span>
+                    </div>
+                    <div style="font-size: 0.72rem; font-weight: 600; color: #94a3b8; letter-spacing: 1.5px; text-transform: uppercase; margin-top: 2px; opacity: 0.9;">
+                        Scan &bull; Borrow &bull; Read
+                    </div>
+                </div>
+            </a>
+
+            <button class="navbar-toggler custom-navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbarContent" aria-controls="adminNavbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                <i class="bi bi-list" style="font-size: 1.3rem;"></i>
+            </button>
+
+            <div class="collapse navbar-collapse" id="adminNavbarContent">
+                <ul class="navbar-nav mx-auto mb-2 mb-xl-0 gap-1 mt-3 mt-xl-0 ps-0 ps-xl-2">
+                    @{
+                        string actionKey = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+                    }
+
+                    <li>
+                        <a class="nav-link-admin @(actionKey == "Dashboard" ? "active" : "")" href="/Admin/Dashboard">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-link-admin @(actionKey == "Books" || actionKey == "AddBook" ? "active" : "")" href="/Admin/Books">
+                            <i class="bi bi-book"></i> Books
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-link-admin @(actionKey == "Students" || actionKey == "AddStudent" ? "active" : "")" href="/Admin/Students">
+                            <i class="bi bi-person-badge"></i> Enrolled Students
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-link-admin @(actionKey == "Transactions" ? "active" : "")" href="/Admin/Transactions">
+                            <i class="bi bi-arrow-left-right"></i> Transactions
+                        </a>
+                    </li>
+                    <li>
+                        <a class="nav-link-admin @(actionKey == "Reports" ? "active" : "")" href="/Admin/Reports">
+                            <i class="bi bi-bar-chart-line-fill"></i> Reports
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="nav-link-admin @(actionKey == "ActivityLogs" ? "active" : "")" href="/Admin/ActivityLogs">
+                            <i class="fas fa-shield-alt me-2"></i> Activity Logs
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="nav-link-admin @(actionKey == "Analytics" ? "active" : "")" href="/Admin/Analytics">
+                            <i class="bi bi-graph-up"></i> Analytics
+                        </a>
+                    </li>
+                    @* <li>
+                        <a class="nav-link-admin nav-link-api" href="/swagger" target="_blank">
+                            <i class="bi bi-file-earmark-code"></i> API Docs
+                        </a>
+                    </li> *@
+                </ul>
+
+                <div class="d-flex flex-column flex-xl-row align-items-stretch align-items-xl-center gap-2 mt-3 mt-xl-0 ms-auto">
+                    <span class="admin-badge justify-content-center">
+                        <i class="bi bi-shield-lock-fill"></i> Admin Portal
+                    </span>
+                    <a href="/Student/Logout" class="btn-logout-admin justify-content-center">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container main-wrapper">
+        @RenderBody()
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
